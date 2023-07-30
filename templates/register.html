@@ -1,0 +1,160 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Register
+{% endblock %}
+
+{% block main %}
+
+    {% for message in get_flashed_messages() %}
+    <div class="d-flex mx-auto alert alert-warning alert-dismissible fade show w-50" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endfor %}
+
+    <div class="d-flex align-items-center h-100">
+        <div class="container h-100">
+            <div class="row d-flex justify-content-center align-items-center h-100">
+                <div class="col-12 col-md-9 col-lg-7 col-xl-6">
+                <div class="container" style="border-radius: 15px;">
+                    <div class="container textbg p-5">
+                    <h2 class="text-uppercase text-center mb-5">Create an account</h2>
+
+                    <form action="/register" method="POST">
+                        <div class="row">
+                            <!-- First name -->
+                            <div class="col-md-6 mb-4">
+                            <div class="form-outline">
+                                <input type="text" name="first_name" value="{{first_name}}" required class="form-control form-control-lg" />
+                                <label class="form-label">First name</label>
+                            </div>
+                            </div>
+                            <!-- Last name -->
+                            <div class="col-md-6 mb-4">
+                            <div class="form-outline">
+                                <input type="text" name="last_name" value="{{last_name}}" required class="form-control form-control-lg" />
+                                <label class="form-label">Last name</label>
+                            </div>
+                            </div>
+                        </div>
+
+                        <!-- Gender -->
+                        <div class="d-md-flex justify-content-start align-items-center mb-4 py-2">
+
+                            <h6 class="mb-0 me-4">Gender: </h6>
+
+                            <div class="form-check form-check-inline mb-0 me-4">
+                            <input class="form-check-input" type="radio" name="gender" id="femaleGender"
+                                value="female" />
+                            <label class="form-check-label">Female</label>
+                            </div>
+
+                            <div class="form-check form-check-inline mb-0 me-4">
+                            <input class="form-check-input" type="radio" name="gender" id="maleGender"
+                                value="male" />
+                            <label class="form-check-label">Male</label>
+                            </div>
+
+                            <div class="form-check form-check-inline mb-0">
+                            <input class="form-check-input" type="radio" name="gender" id="otherGender"
+                                value="other" />
+                            <label class="form-check-label">Other</label>
+                            </div>
+                        </div>
+
+                        <div class="row">
+
+                        <!-- Street -->
+                        <div class="col-md-10 mb-4">
+                        <div class="form-outline">
+                        <input type="text" name="street_name" value="{{ street_name }}" required class="form-control form-control-lg" />
+                        <label class="form-label">Street</label>
+                        </div>
+                        </div>
+
+                        <!-- Street No, -->
+                        <div class="col-md-2 mb-4">
+                        <div class="form-outline">
+                        <input type="text" name="street_number" value="{{ street_number }}" required class="form-control form-control-lg" />
+                        <label class="form-label">No.</label>
+                        </div>
+                        </div>
+                        </div>
+                        <div class="row">
+
+                        <!-- Zip code -->
+                        <div class="col-md-4 mb-4">
+                        <div class="form-outline">
+                        <input type="number" name="zip" value="{{ zip }}" required class="form-control form-control-lg" />
+                        <label class="form-label">Zip code</label>
+                        </div>
+                        </div>
+
+                        <!-- City -->
+                        <div class="col-md-8 mb-4">
+                        <div class="form-outline">
+                        <input type="text" name="city" value="{{ city }}" required class="form-control form-control-lg" />
+                        <label class="form-label">City</label>
+                        </div>
+                        </div>
+                        </div>
+
+
+                        <!-- Email -->
+                        <div class="form-outline mb-4">
+                        <input type="email" name="email" value="{{ email }}" required class="form-control form-control-lg" />
+                        <label class="form-label">Your Email</label>
+                        </div>
+
+                        <!-- Password -->
+                        <div class="form-outline mb-4">
+                        <input type="password" name="password" required class="form-control form-control-lg" />
+                        <label class="form-label">Password</label>
+                        </div>
+
+                        <!-- Password repeat -->
+                        <div class="form-outline mb-4">
+                        <input type="password" name="pw_confirmation" required class="form-control form-control-lg" />
+                        <label class="form-label">Repeat your password</label>
+                        </div>
+
+                        <!-- Checkbox for terms of services -->
+                        <div class="form-check d-flex justify-content-center mb-5">
+                        <input class="form-check-input me-2" type="checkbox" value="" name="check_tos" />
+                        <label class="form-check-label">
+                            I agree all statements in <a href="#!" class="text-body"><u>Terms of service</u></a>
+                        </label>
+                        </div>
+
+                        <!-- Error message if required fields are missing -->
+                        {% if error_message %}
+                        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                            <strong>{{ error_message }}</strong>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                          </div>
+                        {% endif %}
+                        <!-- Submit Button -->
+                        <div class="d-flex justify-content-center">
+                        <button type="submit"
+                            class="btn btn-success btn-block btn-lg gradient-custom-4 text-body">Register</button>
+                        </div>
+
+                        <!-- Redirect to Login -->
+                        <p class="text-center text-muted mt-5 mb-0">Have already an account? <a href="/login"
+                            class="fw-bold text-body"><u>Login here</u></a></p>
+
+                    </form>
+
+                    </div>
+                </div>
+                </div>
+            </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Spacer -->
+    <div class="p-5"></div>
+
+{% endblock %}

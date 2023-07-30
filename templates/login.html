@@ -1,0 +1,72 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Login
+{% endblock %}
+
+{% block main %}
+
+    {% for message in get_flashed_messages() %}
+    <div class="d-flex mx-auto alert alert-warning alert-dismissible fade show w-50" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endfor %}
+    
+    <div class="d-flex align-items-center h-100">
+        <div class="container h-100">
+            <div class="row d-flex justify-content-center align-items-center h-100">
+                <div class="col-12 col-md-9 col-lg-7 col-xl-6">
+                <div class="container" style="border-radius: 15px;">
+                    <div class="container textbg p-5">
+                    <h2 class="text-uppercase text-center mb-5">Member Login</h2>
+
+                    <form action="/login" method="POST">
+                        <div class="row">
+
+
+                        <!-- Email -->
+                        <div class="form-outline mb-4 px-4">
+                        <input type="email" name="login_email" required class="form-control validate">
+                        <label data-error="wrong" data-success="right">Email</label>
+                        </div>
+
+                        <!-- Password -->
+                        <div class="form-outline mb-4 px-4">
+                        <input type="password" name="login_password" required class="form-control validate">
+                        <label data-error="wrong" data-success="right" for="defaultForm-pass">Password</label>
+                        </div>
+
+
+
+                        <!-- Error message if required fields are missing -->
+                        {% if error_message %}
+                        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                            <strong>{{ error_message }}</strong>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                          </div>
+                        {% endif %}
+                        <!-- Submit Button -->
+                        <div class="d-flex justify-content-center">
+                        <button type="submit"
+                            class="btn btn-success btn-block btn-lg gradient-custom-4 text-body">Login</button>
+                        </div>
+
+                        <!-- Redirect to Register -->
+                        <p class="text-center text-muted mt-5 mb-0">Not a member? <a href="/register"
+                            class="fw-bold text-body"><u>Register here</u></a></p>
+
+                    </form>
+
+                    </div>
+                </div>
+                </div>
+            </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Spacer -->
+    <div class="p-5"></div>
+
+{% endblock %}

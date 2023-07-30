@@ -1,0 +1,77 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    User settings
+{% endblock %}
+
+{% block main %}
+
+    {% for message in get_flashed_messages() %}
+    <div class="d-flex mx-auto alert alert-warning alert-dismissible fade show w-50" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endfor %}
+
+    <div class="d-flex align-items-center h-100">
+        <div class="container h-100">
+            <div class="row d-flex justify-content-center align-items-center h-100">
+                <div class="col-12 col-md-9 col-lg-7 col-xl-6">
+                <div class="container" style="border-radius: 15px;">
+                    <div class="container textbg p-5">
+                    <h2 class="text-uppercase text-center mb-3">User settings</h2>
+
+                    <form action="/user_settings" method="POST">
+                        <div class="row">
+
+
+
+
+                        <!-- Error message if required fields are missing -->
+                        {% if error_message %}
+                        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                            <strong>{{ error_message }}</strong>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                          </div>
+                        {% endif %}
+                        <!-- Change Password -->
+                        <div class="d-flex justify-content-center">
+                            <a class="btn btn-secondary btn-block btn-md gradient-custom-4 text-body" href="/change_password">Change your Password</a>
+                        </div>
+                    </form>
+
+                    <h2 class="text-uppercase text-center mt-5">Your bookings</h2>
+                    <table>
+                            <tr>
+                                <th>Booking ID</th>
+                                <th>Court No.</th>
+                                <th>Start</th>
+                                <th>End</th>
+                                <th>Delete</th>
+                            </tr>
+                            {% for booking in bookings %}
+                            <tr>
+                                <td>{{ booking.id }}</td>
+                                <td>{{ booking.court }}</td>
+                                <td>{{ booking.start }}</td>
+                                <td>{{ booking.end }}</td>
+                                <td>
+                                    <form action="/user_settings" method="POST">
+                                        <button type="submit" name="delete_booking" value="{{ booking.id }}" class="btn-close">
+                                    </form>
+                                    </td>
+                            </tr>
+                            {% endfor %}
+                    </table>
+                    </div>
+                </div>
+                </div>
+            </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Spacer -->
+    <div class="p-5"></div>
+
+{% endblock %}

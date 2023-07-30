@@ -1,0 +1,96 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Courts
+{% endblock %}
+
+{% block main %}
+
+  {% for message in get_flashed_messages() %}
+  <div class="d-flex mx-auto alert alert-warning alert-dismissible fade show w-50" role="alert">
+      {{ message }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+  {% endfor %}
+
+    <!-- Container for semitransparent background -->
+    <div class="container textbg">
+
+
+      <div class="container mx-3 my-1">
+          <h1>Book a court</h1>
+      </div>
+      <div class="container mx-3 my-1">
+          <p>To see the available courts for booking please select a date and time</p>
+      </div>
+
+      <!-- Date form for available courts -->
+      <div class="container mx-3 my-1">
+
+        <form action="/booking" method="POST">
+          <div class="col>
+          <label for="date"></label>
+          <input
+          id="input_date"
+          type="date"
+          name="input_date"
+          value="{{ today }}"
+          min="{{ today }}"
+          required />
+
+          <div class="col">
+          <label for="fli">Start time:</label><br>
+          <input type="select" name="input_time" required list="start">
+          <datalist id="start">
+          <option value="09:00">
+          <option value="09:30">
+          <option value="10:00">
+          <option value="10:30">
+          <option value="11:00">
+          <option value="11:30">
+          <option value="12:00">
+          <option value="12:30">
+          <option value="13:00">
+          <option value="13:30">
+          <option value="14:00">
+          <option value="14:30">
+          <option value="15:00">
+          <option value="15:30">
+          <option value="16:00">
+          <option value="16:30">
+          <option value="17:00">
+          <option value="17:30">
+          <option value="18:00">
+          <option value="18:30">
+          <option value="19:00">
+          <option value="19:30">
+          <option value="20:00">
+          <option value="20:30">
+          <option value="21:00">
+          </datalist>
+          </div>
+
+            <div class="col">
+            <h6>Book a court for:</h6>
+            <div>
+              <input type="radio" name="duration" value="1:00"
+                     checked>1 hour</label>
+            </div>
+            <div>
+              <input type="radio" name="duration" value="1:30">1.5 hours
+            </div>
+            <div>
+              <input type="radio" name="duration" value="2:00">2 hours
+            </div>
+            </div>
+
+
+              <div class="col">
+              <!-- Submit button to trigger court search -->
+              <button>Submit</button>
+              </div>
+        </form>
+      </div>
+    </div>
+
+{% endblock %}
