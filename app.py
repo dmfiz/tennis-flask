@@ -14,16 +14,20 @@ from flask_sqlalchemy import SQLAlchemy
 
 
 # globals
+
+# Define number of courts to be flexible. For later use.
+#number_of_courts = 4
+
+# Create a list of courts based on the number
 courtlist = [1, 2, 3, 4]
 
 
 # create and configure the app
-
 app = Flask(__name__, instance_relative_config=True)
 app.config.from_pyfile("config.py")
 app.config["DEBUG"] = True
 
-
+# Configure SQLAlchemy
 SQLALCHEMY_DATABASE_URI = "mysql+mysqlconnector://{username}:{password}@{hostname}/{databasename}".format(
     username="fiz",
     password="SecretSaucedChicken1403",
@@ -34,12 +38,12 @@ app.config["SQLALCHEMY_DATABASE_URI"] = SQLALCHEMY_DATABASE_URI
 app.config["SQLALCHEMY_POOL_RECYCLE"] = 299
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
-#Creating a connection cursor
+# Create a connection cursor
 #db.init_app(app)
 db = SQLAlchemy(app)
 
 
-
+# Create classes for database models
 class User(db.Model):
     __tablename__ = "users"
 
@@ -124,6 +128,7 @@ class Booking(db.Model):
     def __repr__(self):
         return f"<Booking: booking_id={self.id}, member={self.email}, court={self.court}, start={self.start}, end={self.end}>"
 
+# Create database tables if they don`t exist yet
 with app.app_context():
     db.create_all()
 
@@ -174,6 +179,8 @@ def change_password():
 
         # Check if the current password is right
         if not check_password_hash(user.hash, old_password):
+
+            # Generate error message and return user back to the form
             error_message = "Invalid password"
             return render_template("/user/change_password.html", error_message=error_message)
 
@@ -181,6 +188,7 @@ def change_password():
         else:
             # Check if new password and confirmation is same
             if new_password == confirm_password:
+
                     # Update the password
                     new_hash = generate_password_hash(new_password)
                     user.hash = new_hash
@@ -188,13 +196,14 @@ def change_password():
                     # Save new hash to database
                     db.session.commit()
 
-                    # Flash confirmation
+                    # Generate success message
                     flash("Password change successful")
 
                     # Return user to user settings
                     return redirect("/user_settings")
 
             else:
+                # Generate error message and return user back to form
                 error_message = "New Password and Confirmation do not match!"
                 return render_template("/user/change_password.html", error_message=error_message)
 
@@ -202,12 +211,19 @@ def change_password():
 
 @app.route("/booking_done", methods=["GET", "POST"])
 def booking_done():
+
     if request.method == "POST":
+
+        # Get all form data
         court_select = request.form["court_select"]
         input_date = request.form["input_date_pass"]
         start_input = request.form["start_input_pass"]
         end_input = request.form["end_input_pass"]
+
+        # Get current user
         email = session["user"]
+
+        # For debugging purposes
         print(court_select)
 
         # Store booking in database
@@ -217,8 +233,10 @@ def booking_done():
         # Save changes to database
         db.session.commit()
 
+        # Generate success message
         flash("Booking successful!")
 
+        # Return user to index
         return redirect("/")
 
 
@@ -226,54 +244,78 @@ def booking_done():
 @app.route("/booking", methods=["GET", "POST"])
 def booking():
 
-    # Get actual date
-    #now = ceil_dt(now, datetime.timedelta(minutes=30))
+    # Get actual date for setting the min date in the form
     today = datetime.date.today()
 
+    # Round actual time to the next 30 mins. Just for later use. Not used right now.
+    #now = ceil_dt(now, datetime.timedelta(minutes=30))
+
+
     if request.method == "GET":
+
+        # Render page
         return render_template("booking.html", today=today)
 
 
     if request.method == "POST":
 
+        # Get form data
         input_date = request.form["input_date"]
         input_time = request.form["input_time"]
         duration = request.form["duration"]
-        print("input_date: ", input_date)
-        print("input_time: ", input_time)
-        print("duration: ", duration)
 
-
+        # Split input date into separate values to create a datetime conform format
         year, month, day = input_date.split("-")
 
+        # Split the input time into separate values to create a datetime conform format
         hour, minute = input_time.split(":")
+
+        # Format start time as datetime
         start_input = datetime.datetime(int(year), int(month), int(day), int(hour), int(minute))
-        print("start_input: ", start_input)
+
+        # Split duration time to use hour and min values for timedelta
         hours_duration, minutes_duration = duration.split(":")
+
+        # Format end time as datetime. end time = start time + duration
         end_input = start_input + (datetime.timedelta(hours=int(hours_duration), minutes=int(minutes_duration)))
-        print("end_input: ", end_input)
 
+        # Initialise list of courts as free
         court_status = ["free", "free", "free", "free"]
-
-        for court in courtlist:
-
-            court_bookings = Booking.query.filter_by(date=input_date, court=court).all()
-
-            for i in range(len(court_bookings)):
-                start_stored, end_stored = court_bookings[i]
-                start_stored = datetime.datetime.strptime(start_stored, "%Y-%m-%d %H:%M:%S")
-                end_stored = datetime.datetime.strptime(end_stored, "%Y-%m-%d %H:%M:%S")
-                print("start_stored: ", start_stored)
-                print("end_stored: ", end_stored)
-                if not (end_input <= start_stored or start_input >= end_stored):
-                    court_status[court] = "occupied"
-                    break
-
+        print(court_status)
 
 
         print(courtlist)
         print(court_status)
 
+        # Iterate over list
+        for court in courtlist:
+            print(court)
+            # Query database for already existing bookings for the chosen day
+            court_bookings = Booking.query.filter_by(date=input_date, court=court).all()
+
+            # For debugging purposes
+            print("court_bookings")
+            print(court_bookings)
+
+            print("range(len(court_bookings))")
+            print(range(len(court_bookings)))
+            for i in range(len(court_bookings)):
+                #start_stored, end_stored = court_bookings[i]
+                #start_stored = datetime.datetime.strptime(start_stored, "%Y-%m-%d %H:%M:%S")
+                #end_stored = datetime.datetime.strptime(end_stored, "%Y-%m-%d %H:%M:%S")
+                print("court_status[court-1]")
+                print(court_status[court-1])
+
+                if not (end_input <= court_bookings[i].start or start_input >= court_bookings[i].end):
+                    court_status[court-1] = "occupied"
+                    break
+
+
+        # For debugging purposes
+        print(courtlist)
+        print(court_status)
+
+        # Render template with the available courts to choose from. Pass all values to the next form
         return render_template("booking_return.html", today=today, court_status=court_status, input_date_pass=input_date, start_input_pass=start_input, end_input_pass=end_input)
 
 

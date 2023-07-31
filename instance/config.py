@@ -1,21 +1,25 @@
-from os import environ, path
-#from dotenv import load_dotenv
+from os import environ, getenv, path
+from dotenv import load_dotenv
 
 
 # Specificy a `.env` file containing key/value config values
 #basedir = path.abspath(path.dirname(__file__))
-#load_dotenv(path.join(basedir, ".env"))
+basedir = path.expanduser("~/tennis-flask")
+load_dotenv(path.join(basedir, ".env"))
+
 
 
 # General Config
 ENVIRONMENT = environ.get("ENVIRONMENT")
 FLASK_APP = environ.get("FLASK_APP")
 FLASK_DEBUG = environ.get("FLASK_DEBUG")
-#SECRET_KEY = environ.get("SECRET_KEY")
-#SECURITY_PASSWORD_SALT = environ.get("SECURITY_PASSWORD_SALT")
+SECRET_KEY = environ.get("SECRET_KEY")
+SECURITY_PASSWORD_SALT = environ.get("SECURITY_PASSWORD_SALT")
+SECRET_KEY = getenv("SECRET_KEY")
+SECURITY_PASSWORD_SALT = getenv("SECURITY_PASSWORD_SALT")
 
-SECRET_KEY = "SecretSaucedChicken"
-SECURITY_PASSWORD_SALT = "SecretSaltyChicken"
+#SECRET_KEY = "SecretSaucedChicken"
+#SECURITY_PASSWORD_SALT = "SecretSaltyChicken"
 
 
 class BaseConfig(object):
