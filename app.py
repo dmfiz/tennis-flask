@@ -16,10 +16,11 @@ from flask_sqlalchemy import SQLAlchemy
 # globals
 
 # Define number of courts to be flexible. For later use.
-#number_of_courts = 4
+number_of_courts = 4
 
-# Create a list of courts based on the number
-courtlist = [1, 2, 3, 4]
+# Create a list of courts based on the number of courts
+#courtlist = [1, 2, 3, 4]
+courtlist = [i for i in range(1, number_of_courts+1)]
 
 
 # create and configure the app
@@ -44,6 +45,8 @@ db = SQLAlchemy(app)
 
 
 # Create classes for database models
+
+# Class for our users
 class User(db.Model):
     __tablename__ = "users"
 
@@ -96,7 +99,7 @@ class User(db.Model):
         return '<User %r>' % self.email
 
 
-
+# Class for our bookings
 class Booking(db.Model):
     __tablename__ = "bookings"
 
@@ -138,31 +141,24 @@ with app.app_context():
 
 
 
-# Function for rounding to the next 30 min. For later use
-def ceil_dt(dt, delta):
-    return dt + (datetime.datetime.min - dt) % delta
 
 
+def login_required(f):
+    @wraps(f)
+    def wrap(*args, **kwargs):
+        try:
+            # Check if there is the current user is logged in
+            if session["user"]:
+                return f(*args, **kwargs)
+        # If no user is stored in session we will get a KeyError. In this case we capture it and redirect the user to login
+        except KeyError:
+            flash("You need to login first")
+            return redirect("/login")
 
-#def login_required(f):
-#    @wraps(f)
-#    def wrapper(*args, **kwargs):
-#        user_id = session.get("user_id")
-#        if user_id:
-#            user = database.get(user_id)
-#            if user:
-#                # Success!
-#                return f(*args, **kwargs)
-#            else:
-#                flash("Session exists, but user does not exist (anymore)")
-#                return redirect(url_for('login'))
-#        else:
-#            flash("Please log in")
-#            return redirect(url_for('login'))
-
-
+    return wrap
 
 @app.route("/change_password", methods=["GET", "POST"])
+@login_required
 def change_password():
     if request.method == "GET":
         return render_template("/user/change_password.html")
@@ -189,7 +185,7 @@ def change_password():
             # Check if new password and confirmation is same
             if new_password == confirm_password:
 
-                    # Update the password
+                    # Hash the new password and use it as new password
                     new_hash = generate_password_hash(new_password)
                     user.hash = new_hash
 
@@ -210,6 +206,7 @@ def change_password():
 
 
 @app.route("/booking_done", methods=["GET", "POST"])
+@login_required
 def booking_done():
 
     if request.method == "POST":
@@ -242,13 +239,11 @@ def booking_done():
 
 
 @app.route("/booking", methods=["GET", "POST"])
+@login_required
 def booking():
 
     # Get actual date for setting the min date in the form
     today = datetime.date.today()
-
-    # Round actual time to the next 30 mins. Just for later use. Not used right now.
-    #now = ceil_dt(now, datetime.timedelta(minutes=30))
 
 
     if request.method == "GET":
@@ -280,16 +275,12 @@ def booking():
         end_input = start_input + (datetime.timedelta(hours=int(hours_duration), minutes=int(minutes_duration)))
 
         # Initialise list of courts as free
-        court_status = ["free", "free", "free", "free"]
-        print(court_status)
+        court_status = ["free"] * number_of_courts
 
 
-        print(courtlist)
-        print(court_status)
-
-        # Iterate over list
+        # Iterate over all courts
         for court in courtlist:
-            print(court)
+
             # Query database for already existing bookings for the chosen day
             court_bookings = Booking.query.filter_by(date=input_date, court=court).all()
 
@@ -297,17 +288,16 @@ def booking():
             print("court_bookings")
             print(court_bookings)
 
-            print("range(len(court_bookings))")
-            print(range(len(court_bookings)))
+            # Iterate over all bookings for this day
             for i in range(len(court_bookings)):
-                #start_stored, end_stored = court_bookings[i]
-                #start_stored = datetime.datetime.strptime(start_stored, "%Y-%m-%d %H:%M:%S")
-                #end_stored = datetime.datetime.strptime(end_stored, "%Y-%m-%d %H:%M:%S")
-                print("court_status[court-1]")
-                print(court_status[court-1])
 
+                # Check if the desired booking will interfere with the existing bookings for this court
                 if not (end_input <= court_bookings[i].start or start_input >= court_bookings[i].end):
+
+                    # As the index starts with 0 and the courtlist is starting at 1, we have to reduce indexnumber by 1 in order to address the correct court
                     court_status[court-1] = "occupied"
+
+                    # Break out of the loop for this court if one booking interferes
                     break
 
 
@@ -341,7 +331,6 @@ def login():
         email = request.form["login_email"]
         password = request.form["login_password"]
 
-        error_message = ""
 
         # Get matching user id and hashfrom database
         user = User.query.filter_by(email = email).first()
@@ -350,20 +339,27 @@ def login():
 
         # Check if the user is in database
         if user is None:
+            # Generate error message and return user to login page again
             error_message = "Invalid email"
             return render_template("login.html", error_message=error_message)
 
         # Check if the password is correct
         elif not check_password_hash(user.hash, password):
+
+            # Generate error message and return user to login page again
             error_message = "Invalid password"
             return render_template("login.html", error_message=error_message)
 
-        # All good, user is validated
+        # User is validated
         else:
+
             # STORE SESSION COOKIE
             session["user"] = email
+
+            # For debugging purposes
             print("user logged in")
 
+            # Flash confirmation
             flash("You are now logged in!")
             # Redirect to index
             return redirect("/")
@@ -371,7 +367,7 @@ def login():
 
 
 @app.route("/logout")
-#@login_required
+@login_required
 def logout():
     # Clear session information
     session.clear()
@@ -471,19 +467,19 @@ def register():
                     # Save changes to database
                     db.session.commit()
 
-
-
-
+                    # Flash a confirmation and redirect user to index
                     flash('Member registration successful', 'success')
 
                     return redirect("/")
 
 
 @app.route("/user_settings", methods=["GET", "POST"])
+@login_required
 def user_settings():
 
     if request.method == "GET":
 
+        # Query all bookings from current user and render them on the settings page
         bookings = Booking.query.filter(Booking.email == session["user"]).all()
         return render_template("user_settings.html", bookings=bookings)
 

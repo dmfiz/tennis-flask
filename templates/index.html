@@ -7,6 +7,7 @@
 {% block main %}
 
 
+
     {% for message in get_flashed_messages() %}
     <div class="d-flex mx-auto alert alert-warning alert-dismissible fade show w-50" role="alert">
         {{ message }}

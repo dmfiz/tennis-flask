@@ -39,35 +39,35 @@
           required />
 
           <div class="col">
-          <label for="fli">Start time:</label><br>
-          <input type="select" name="input_time" required list="start">
+          <label for="times">Start time:</label><br>
+          <select name="input_time"id="input_time">
           <datalist id="start">
-          <option value="09:00">
-          <option value="09:30">
-          <option value="10:00">
-          <option value="10:30">
-          <option value="11:00">
-          <option value="11:30">
-          <option value="12:00">
-          <option value="12:30">
-          <option value="13:00">
-          <option value="13:30">
-          <option value="14:00">
-          <option value="14:30">
-          <option value="15:00">
-          <option value="15:30">
-          <option value="16:00">
-          <option value="16:30">
-          <option value="17:00">
-          <option value="17:30">
-          <option value="18:00">
-          <option value="18:30">
-          <option value="19:00">
-          <option value="19:30">
-          <option value="20:00">
-          <option value="20:30">
-          <option value="21:00">
-          </datalist>
+          <option value="09:00">09:00</option>
+          <option value="09:30">09:30</option>
+          <option value="10:00">10:00</option>
+          <option value="10:30">10:30</option>
+          <option value="11:00">11:00</option>
+          <option value="11:30">11:30</option>
+          <option value="12:00">12:00</option>
+          <option value="12:30">12:30</option>
+          <option value="13:00">13:00</option>
+          <option value="13:30">13:30</option>
+          <option value="14:00">14:00</option>
+          <option value="14:30">14:30</option>
+          <option value="15:00">15:00</option>
+          <option value="15:30">15:30</option>
+          <option value="16:00">16:00</option>
+          <option value="16:30">16:30</option>
+          <option value="17:00">17:00</option>
+          <option value="17:30">17:30</option>
+          <option value="18:00">18:00</option>
+          <option value="18:30">18:30</option>
+          <option value="19:00">19:00</option>
+          <option value="19:30">19:30</option>
+          <option value="20:00">20:00</option>
+          <option value="20:30">20:30</option>
+          <option value="21:00">21:00</option>
+          </select>
           </div>
 
             <div class="col">
@@ -93,6 +93,14 @@
       </div>
     <!-- Spacer -->
     <div class="p-5"></div>
+
+
+    <!-- Show the selected datetime here -->
+            <div class="col-10">
+              <h3>Showing available courts for {{ start_input_pass }}</h3>
+              <p></p>
+          </div>
+
 
     <div class="row">
       {% for court in court_status %}
