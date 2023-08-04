@@ -14,22 +14,23 @@
   {% endfor %}
 
     <!-- Container for semitransparent background -->
-    <div class="container textbg">
-
-
-      <div class="container mx-3 my-1">
+     <div class="container text-center">
+  <div class="row justify-content-center">
+    <div class="col-10 col-lg-6 textbg">
+      <div class="col mx-3 my-1">
           <h1>Book a court</h1>
       </div>
-      <div class="container mx-3 my-1">
+      <div class="col mx-3 my-1">
           <p>To see the available courts for booking please select a date and time</p>
       </div>
 
       <!-- Date form for available courts -->
-      <div class="container mx-3 my-1">
+
 
         <form action="/booking" method="POST">
-          <div class="col>
-          <label for="date"></label>
+          <div class="row mx-3 my-1 text-start">
+              <div class="col-10 col-md-6 col-lg-4">
+          <label for="date"><b>Date:</b></label>
           <input
           id="input_date"
           type="date"
@@ -37,9 +38,9 @@
           value="{{ today }}"
           min="{{ today }}"
           required />
-
-          <div class="col">
-          <label for="times">Start time:</label><br>
+        </div>
+          <div class="col-10 col-md-6 col-lg-4">
+          <label for="times"><b>Start time:</b></label><br>
           <select name="input_time"id="input_time">
           <datalist id="start">
           <option value="09:00">09:00</option>
@@ -70,9 +71,11 @@
           </select>
           </div>
 
-            <div class="col">
-            <h6>Book a court for:</h6>
-            <div>
+
+
+            <div class="col-10 col-md-6 col-lg-4">
+                <b>Book a court for:</b>
+                <div>
               <input type="radio" name="duration" value="1:00"
                      checked>1 hour</label>
             </div>
@@ -82,15 +85,17 @@
             <div>
               <input type="radio" name="duration" value="2:00">2 hours
             </div>
+
             </div>
 
 
-              <div class="col">
+              <div class="col-10 col-md-6 col-lg-4">
               <!-- Submit button to trigger court search -->
               <button>Submit</button>
               </div>
         </form>
       </div>
     </div>
-
+    </div>
+    </div>
 {% endblock %}

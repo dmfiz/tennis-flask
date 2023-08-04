@@ -1,10 +1,7 @@
 import os
-import pandas as pd
 import datetime
 
-from itsdangerous import URLSafeTimedSerializer
 from flask import Flask, flash, redirect, render_template, request, session, url_for
-from flask_modals import Modal
 from functools import wraps
 from tempfile import mkdtemp
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -28,21 +25,11 @@ app = Flask(__name__, instance_relative_config=True)
 app.config.from_pyfile("config.py")
 app.config["DEBUG"] = True
 
-# Configure SQLAlchemy
-SQLALCHEMY_DATABASE_URI = "mysql+mysqlconnector://{username}:{password}@{hostname}/{databasename}".format(
-    username="fiz",
-    password="SecretSaucedChicken1403",
-    hostname="fiz.mysql.eu.pythonanywhere-services.com",
-    databasename="fiz$tennis_mysql",
-)
-app.config["SQLALCHEMY_DATABASE_URI"] = SQLALCHEMY_DATABASE_URI
-app.config["SQLALCHEMY_POOL_RECYCLE"] = 299
-app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
 
 # Create a connection cursor
-#db.init_app(app)
 db = SQLAlchemy(app)
-
+#db.init_app(app)
 
 # Create classes for database models
 
@@ -134,11 +121,6 @@ class Booking(db.Model):
 # Create database tables if they don`t exist yet
 with app.app_context():
     db.create_all()
-
-
-
-#modal = Modal(app)
-
 
 
 
@@ -436,11 +418,11 @@ def register():
                 print(user)
                 print(type(user))
 
-                # Check if username already exists
+                # Check if email already exists
                 if user:
 
-                    # Create error message for duplicate username
-                    error_message = "Username already exists"
+                    # Create error message for duplicate email
+                    error_message = "Email already registered"
 
                     # Return error message as alert in new rendered template
                     return render_template("register.html", error_message=error_message,

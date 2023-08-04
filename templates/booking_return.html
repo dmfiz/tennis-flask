@@ -14,22 +14,23 @@
   {% endfor %}
 
     <!-- Container for semitransparent background -->
-    <div class="container textbg">
-
-
-      <div class="container mx-3 my-1">
+     <div class="container text-center">
+  <div class="row justify-content-center">
+    <div class="col-10 col-lg-6 textbg">
+      <div class="col mx-3 my-1">
           <h1>Book a court</h1>
       </div>
-      <div class="container mx-3 my-1">
+      <div class="col mx-3 my-1">
           <p>To see the available courts for booking please select a date and time</p>
       </div>
 
       <!-- Date form for available courts -->
-      <div class="container mx-3 my-1">
+
 
         <form action="/booking" method="POST">
-          <div class="col>
-          <label for="date"></label>
+          <div class="row mx-3 my-1 text-start">
+              <div class="col-10 col-md-6 col-lg-4">
+          <label for="date"><b>Date:</b></label>
           <input
           id="input_date"
           type="date"
@@ -37,9 +38,9 @@
           value="{{ today }}"
           min="{{ today }}"
           required />
-
-          <div class="col">
-          <label for="times">Start time:</label><br>
+        </div>
+          <div class="col-10 col-md-6 col-lg-4">
+          <label for="times"><b>Start time:</b></label><br>
           <select name="input_time"id="input_time">
           <datalist id="start">
           <option value="09:00">09:00</option>
@@ -70,9 +71,11 @@
           </select>
           </div>
 
-            <div class="col">
-            <h6>Book a court for:</h6>
-            <div>
+
+
+            <div class="col-10 col-md-6 col-lg-4">
+                <b>Book a court for:</b>
+                <div>
               <input type="radio" name="duration" value="1:00"
                      checked>1 hour</label>
             </div>
@@ -82,50 +85,67 @@
             <div>
               <input type="radio" name="duration" value="2:00">2 hours
             </div>
+
             </div>
 
 
-              <div class="col">
+              <div class="col-10 col-md-6 col-lg-4">
               <!-- Submit button to trigger court search -->
               <button>Submit</button>
               </div>
         </form>
       </div>
+
     <!-- Spacer -->
-    <div class="p-5"></div>
+    <div class="p-3"></div>
 
 
-    <!-- Show the selected datetime here -->
+
+
+
+    <div class="row justify-content-center">
+
+            <!-- Show the selected datetime here -->
             <div class="col-10">
               <h3>Showing available courts for {{ start_input_pass }}</h3>
               <p></p>
           </div>
-
-
-    <div class="row">
+        <!-- For loop for all courts -->
       {% for court in court_status %}
-      <div class="col-6">
-      <div class="card text-center mb-3" style="width: 18rem;">
-      {% if court == 'free' %}
-            <img src="static/images/court_free.png" class="card-img-top">
-            {% elif court == 'occupied' %}
-            <img src="static/images/court_occupied.png" class="card-img-top">
-            {% endif %}
+      <div class="col-8 flex-grow-1 flex-shrink-0">
+      <div class="card card-body text-center mb-3">
+      <p class="card-text"><b>Court {{ loop.index }}</b> is <b>{{ court }}</b>.</p>
+        {% if loop.index == 1 %}
+            <img src="static/images/court1.jpg" class="card-img-top">
+        {% elif loop.index == 2 %}
+            <img src="static/images/court2.jpg" class="card-img-top">
+        {% elif loop.index == 3 %}
+            <img src="static/images/court3.jpg" class="card-img-top">
+        {% elif loop.index == 4 %}
+            <img src="static/images/court4.jpg" class="card-img-top">
+        {% endif %}
         <div class="card-body">
-        <p class="card-text">Court No. {{ loop.index }} is {{ court }}.</p>
+
+        {% if court == 'free' %}
         <form method="post" action="/booking_done">
         <button class="btn btn-success" type="submit" name="court_select" value="{{ loop.index }}">Book</button>
         <input type="hidden" id="input_date_pass" name="input_date_pass" value="{{ input_date_pass }}">
         <input type="hidden" id="start_input_pass" name="start_input_pass" value="{{ start_input_pass }}">
         <input type="hidden" id="end_input_pass" name="end_input_pass" value="{{ end_input_pass }}">
         </form>
+        {% elif court == 'occupied' %}
+        <button class="btn-lg btn-secondary" disabled>Occupied</button>
+        {% endif %}
       </div>
     </div>
   </div>
+      <!-- Spacer -->
+    <div class="p-3"></div>
     {% endfor %}
   </div>
+</div>
 
-
+</div>
     <!-- Spacer -->
     <div class="p-5"></div>
 {% endblock %}
