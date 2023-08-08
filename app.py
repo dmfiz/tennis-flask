@@ -1,9 +1,6 @@
-import os
 import datetime
-
-from flask import Flask, flash, redirect, render_template, request, session, url_for
+from flask import Flask, flash, redirect, render_template, request, session
 from functools import wraps
-from tempfile import mkdtemp
 from werkzeug.security import check_password_hash, generate_password_hash
 from flask_sqlalchemy import SQLAlchemy
 #from models import User, Booking
