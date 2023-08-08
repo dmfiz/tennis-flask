@@ -16,7 +16,6 @@ from flask_sqlalchemy import SQLAlchemy
 number_of_courts = 4
 
 # Create a list of courts based on the number of courts
-#courtlist = [1, 2, 3, 4]
 courtlist = [i for i in range(1, number_of_courts+1)]
 
 
@@ -139,52 +138,72 @@ def login_required(f):
 
     return wrap
 
-@app.route("/change_password", methods=["GET", "POST"])
+
+@app.route("/booking", methods=["GET", "POST"])
 @login_required
-def change_password():
+def booking():
+
+    # Get actual date for setting the min date in the form
+    today = datetime.date.today()
+
     if request.method == "GET":
-        return render_template("/user/change_password.html")
+
+        # Render page
+        return render_template("booking.html", today=today)
 
     if request.method == "POST":
 
-        # Get form input
-        old_password = request.form["old_password"]
-        new_password = request.form["new_password"]
-        confirm_password = request.form["confirm_password"]
+        # Get form data
+        input_date = request.form["input_date"]
+        input_time = request.form["input_time"]
+        duration = request.form["duration"]
 
-        # Query the user data
-        user = User.query.filter(User.email == session["user"]).first()
+        # Split input date into separate values to create a datetime conform format
+        year, month, day = input_date.split("-")
 
-        # Check if the current password is right
-        if not check_password_hash(user.hash, old_password):
+        # Split the input time into separate values to create a datetime conform format
+        hour, minute = input_time.split(":")
 
-            # Generate error message and return user back to the form
-            error_message = "Invalid password"
-            return render_template("/user/change_password.html", error_message=error_message)
+        # Format start time as datetime
+        start_input = datetime.datetime(int(year), int(month), int(day), int(hour), int(minute))
 
+        # Split duration time to use hour and min values for timedelta
+        hours_duration, minutes_duration = duration.split(":")
 
-        else:
-            # Check if new password and confirmation is same
-            if new_password == confirm_password:
+        # Format end time as datetime. end time = start time + duration
+        end_input = start_input + (datetime.timedelta(hours=int(hours_duration), minutes=int(minutes_duration)))
 
-                    # Hash the new password and use it as new password
-                    new_hash = generate_password_hash(new_password)
-                    user.hash = new_hash
+        # Initialise list of courts as free
+        court_status = ["free"] * number_of_courts
 
-                    # Save new hash to database
-                    db.session.commit()
+        # Iterate over all courts
+        for court in courtlist:
 
-                    # Generate success message
-                    flash("Password change successful")
+            # Query database for already existing bookings for the chosen day
+            court_bookings = Booking.query.filter_by(date=input_date, court=court).all()
 
-                    # Return user to user settings
-                    return redirect("/user_settings")
+            # For debugging purposes
+            print("court_bookings")
+            print(court_bookings)
 
-            else:
-                # Generate error message and return user back to form
-                error_message = "New Password and Confirmation do not match!"
-                return render_template("/user/change_password.html", error_message=error_message)
+            # Iterate over all bookings for this day
+            for i in range(len(court_bookings)):
 
+                # Check if the desired booking will interfere with the existing bookings for this court
+                if not (end_input <= court_bookings[i].start or start_input >= court_bookings[i].end):
+
+                    # As the index starts with 0 and the courtlist is starting at 1, we have to reduce indexnumber by 1 in order to address the correct court
+                    court_status[court-1] = "occupied"
+
+                    # Break out of the loop for this court if one booking interferes
+                    break
+
+        # For debugging purposes
+        print(courtlist)
+        print(court_status)
+
+        # Render template with the available courts to choose from. Pass all values to the next form
+        return render_template("booking_return.html", today=today, court_status=court_status, input_date_pass=input_date, start_input_pass=start_input, end_input_pass=end_input)
 
 
 @app.route("/booking_done", methods=["GET", "POST"])
@@ -219,76 +238,50 @@ def booking_done():
         return redirect("/")
 
 
-
-@app.route("/booking", methods=["GET", "POST"])
+@app.route("/change_password", methods=["GET", "POST"])
 @login_required
-def booking():
-
-    # Get actual date for setting the min date in the form
-    today = datetime.date.today()
-
-
+def change_password():
     if request.method == "GET":
-
-        # Render page
-        return render_template("booking.html", today=today)
-
+        return render_template("/user/change_password.html")
 
     if request.method == "POST":
 
-        # Get form data
-        input_date = request.form["input_date"]
-        input_time = request.form["input_time"]
-        duration = request.form["duration"]
+        # Get form input
+        old_password = request.form["old_password"]
+        new_password = request.form["new_password"]
+        confirm_password = request.form["confirm_password"]
 
-        # Split input date into separate values to create a datetime conform format
-        year, month, day = input_date.split("-")
+        # Query the user data
+        user = User.query.filter(User.email == session["user"]).first()
 
-        # Split the input time into separate values to create a datetime conform format
-        hour, minute = input_time.split(":")
+        # Check if the current password is right
+        if not check_password_hash(user.hash, old_password):
 
-        # Format start time as datetime
-        start_input = datetime.datetime(int(year), int(month), int(day), int(hour), int(minute))
+            # Generate error message and return user back to the form
+            error_message = "Invalid password"
+            return render_template("/user/change_password.html", error_message=error_message)
 
-        # Split duration time to use hour and min values for timedelta
-        hours_duration, minutes_duration = duration.split(":")
+        else:
+            # Check if new password and confirmation is same
+            if new_password == confirm_password:
 
-        # Format end time as datetime. end time = start time + duration
-        end_input = start_input + (datetime.timedelta(hours=int(hours_duration), minutes=int(minutes_duration)))
+                    # Hash the new password and use it as new password
+                    new_hash = generate_password_hash(new_password)
+                    user.hash = new_hash
 
-        # Initialise list of courts as free
-        court_status = ["free"] * number_of_courts
+                    # Save new hash to database
+                    db.session.commit()
 
+                    # Generate success message
+                    flash("Password change successful")
 
-        # Iterate over all courts
-        for court in courtlist:
+                    # Return user to user settings
+                    return redirect("/user_settings")
 
-            # Query database for already existing bookings for the chosen day
-            court_bookings = Booking.query.filter_by(date=input_date, court=court).all()
-
-            # For debugging purposes
-            print("court_bookings")
-            print(court_bookings)
-
-            # Iterate over all bookings for this day
-            for i in range(len(court_bookings)):
-
-                # Check if the desired booking will interfere with the existing bookings for this court
-                if not (end_input <= court_bookings[i].start or start_input >= court_bookings[i].end):
-
-                    # As the index starts with 0 and the courtlist is starting at 1, we have to reduce indexnumber by 1 in order to address the correct court
-                    court_status[court-1] = "occupied"
-
-                    # Break out of the loop for this court if one booking interferes
-                    break
-
-
-        # For debugging purposes
-        print(courtlist)
-        print(court_status)
-
-        # Render template with the available courts to choose from. Pass all values to the next form
-        return render_template("booking_return.html", today=today, court_status=court_status, input_date_pass=input_date, start_input_pass=start_input, end_input_pass=end_input)
+            else:
+                # Generate error message and return user back to form
+                error_message = "New Password and Confirmation do not match!"
+                return render_template("/user/change_password.html", error_message=error_message)
 
 
 @app.route("/courts", methods=["GET"])
@@ -307,12 +300,10 @@ def login():
     if request.method == "GET":
         return render_template("login.html")
 
-
     if request.method == "POST":
         # Get login data from form
         email = request.form["login_email"]
         password = request.form["login_password"]
-
 
         # Get matching user id and hashfrom database
         user = User.query.filter_by(email = email).first()
@@ -347,7 +338,6 @@ def login():
             return redirect("/")
 
 
-
 @app.route("/logout")
 @login_required
 def logout():
@@ -373,7 +363,6 @@ def register():
 
         return render_template("register.html")
 
-
     if request.method == "POST":
 
         # Get user data from registration form
@@ -387,7 +376,6 @@ def register():
         email = request.form.get("email")
         password = request.form.get("password")
         pw_confirmation = request.form.get("pw_confirmation")
-
 
         # Check if all fields are supplied
         if not first_name or not last_name or not gender or not street_name or not street_number or not zip or not city or not email or not password or not pw_confirmation:
@@ -465,7 +453,6 @@ def user_settings():
         bookings = Booking.query.filter(Booking.email == session["user"]).all()
         return render_template("user_settings.html", bookings=bookings)
 
-
     if request.method == "POST":
 
         # Get booking ID to delete from form
@@ -484,9 +471,6 @@ def user_settings():
         bookings = Booking.query.filter(Booking.email == session["user"]).all()
 
         return render_template("user_settings.html", bookings=bookings)
-
-
-
 
 
 if __name__ == '__main__':
